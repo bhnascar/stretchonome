@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <script src="timeline.js"></script>
+  <style>
+    html {
+      height: 100%;
+    }
+
+    body {
+      width: 100%;
+      height: 100%;
+      padding: 0px;
+      margin: 0px;
+      color: #CCCCCC;
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #222;
+    }
+
+    canvas {
+      position: absolute;
+      width: 100%;
+      height: 70%;
+      z-index: 1;
+    }
+
+    #canvas-overlay {
+      position: absolute;
+      width: 100%;
+      height: 70%;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    #ui-wrapper {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    #controls {
+      position: absolute;
+      bottom: 0px;
+      z-index: 3;
+      width: 300px;
+      margin: 0px auto;
+      padding: 30px;
+    }
+
+    #needle {
+      height: 100%;
+      width: 2px;
+      margin: 0px auto;
+      background-color: #FF0000;
+      z-index: 4;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas>
+  </canvas>
+  <div id="canvas-overlay"></div>
+  <div id="ui-wrapper">
+    <div id="needle"></div>
+    <div id="controls">
+      <p>Press enter to insert beats</p>
+      <button id="begin">⏮︎</button>
+      <button id="start">▶</button>
+      <button id="stop">⏹︎</button>
+      <button id="end">⏭︎</button>
+      <button id="clear">Clear</button>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    const beats = [];
+
+    const canvas = document.querySelector("canvas");
+    const canvasOverlay = document.getElementById("canvas-overlay");
+    const timeline = new Timeline(canvas, canvasOverlay);
+
+    const loop = (timeMS) => {
+      timeline.render(timeMS);
+      return window.requestAnimationFrame(loop);
+    };
+    window.requestAnimationFrame(loop);
+
+    window.onresize = () => { timeline.resize(); };
+
+    document.onwheel = (event) => {
+      event.preventDefault();
+      timeline.setWindowSize(timeline.windowSize + 0.1 * event.deltaY);
+    }
+
+    document.addEventListener("keydown", (event) => {
+      event.preventDefault();
+      if (event.code == 'Enter') {
+        beats.push(timeline.currentTime());
+        timeline.start();
+      }
+    });
+
+    var beginButton = document.getElementById("begin");
+    beginButton.addEventListener("click", () => {
+      timeline.reset();
+    });
+
+    var endButton = document.getElementById("end");
+    endButton.addEventListener("click", () => {
+      timeline.setTime(beats.length > 0 ? beats[beats.length - 1] : 0);
+    });
+
+    var startButton = document.getElementById("start");
+    startButton.addEventListener("click", () => {
+      timeline.start();
+    });
+
+    var stopButton = document.getElementById("stop");
+    stopButton.addEventListener("click", () => {
+      timeline.stop();
+    });
+
+    var clearButton = document.getElementById("clear");
+    clearButton.addEventListener("click", () => {
+      beats.length = 0;
+    });
+  </script>
+</body>
+
+</html>
