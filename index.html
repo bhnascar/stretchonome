@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <script src="timeline.js"></script>
   <style>
     html {
@@ -101,6 +102,12 @@
         beats.push(timeline.currentTime());
         timeline.start();
       }
+    });
+
+    document.addEventListener("touchstart", (event) => {
+      event.preventDefault();
+      beats.push(timeline.currentTime());
+      timeline.start();
     });
 
     var beginButton = document.getElementById("begin");
