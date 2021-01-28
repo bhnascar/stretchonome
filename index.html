@@ -2,8 +2,11 @@
 <html>
 
 <head>
+  <title>Stretchonome</title>
   <meta charset="UTF-8">
+  <meta name="theme-color" content="#000000">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   <script src="timeline.js"></script>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -18,11 +21,10 @@
   <div id="ui-wrapper">
     <div id="controls">
       <p>Press enter to insert beats</p>
-      <button id="begin">⏮︎</button>
-      <button id="start">▶</button>
-      <button id="stop">⏹︎</button>
-      <button id="end">⏭︎</button>
-      <button id="clear">Clear</button>
+      <button id="begin"><i class="fa fa-step-backward" aria-hidden="true"></i></button>
+      <button id="play"><i class="fa fa-play" aria-hidden="true"></i></button>
+      <button id="end"><i class="fa fa-step-forward" aria-hidden="true"></i></button>
+      <button id="clear">Reset</button>
     </div>
   </div>
 
@@ -32,7 +34,11 @@
     const canvas = document.querySelector("canvas");
     const canvasOverlay = document.getElementById("canvas-overlay");
     const timeLabel = document.getElementById("time-label");
-    const timeline = new Timeline(canvas, canvasOverlay);
+    const timeline = new Timeline(canvas, canvasOverlay, {
+      windowSize: 5,
+      majorInterval: 1,
+      minorInterval: 0.125,
+    });
 
     const loop = (timeMS) => {
       timeLabel.innerText = timeline.currentTimeString();
@@ -45,22 +51,8 @@
 
     document.onwheel = (event) => {
       event.preventDefault();
-      timeline.setWindowSize(timeline.windowSize + 0.1 * event.deltaY);
+      timeline.setWindowSize(timeline.settings.windowSize + 0.1 * event.deltaY);
     }
-
-    document.addEventListener("keydown", (event) => {
-      event.preventDefault();
-      if (event.code == 'Enter') {
-        beats.push(timeline.currentTime());
-        timeline.start();
-      }
-    });
-
-    document.addEventListener("touchstart", (event) => {
-      event.preventDefault();
-      beats.push(timeline.currentTime());
-      timeline.start();
-    });
 
     var beginButton = document.getElementById("begin");
     beginButton.addEventListener("click", () => {
@@ -72,14 +64,15 @@
       timeline.setTime(beats.length > 0 ? beats[beats.length - 1] : 0);
     });
 
-    var startButton = document.getElementById("start");
-    startButton.addEventListener("click", () => {
-      timeline.start();
-    });
-
-    var stopButton = document.getElementById("stop");
-    stopButton.addEventListener("click", () => {
-      timeline.stop();
+    var playButton = document.getElementById("play");
+    playButton.addEventListener("click", () => {
+      if (timeline.active) {
+        timeline.stop();
+        playButton.innerHTML = '<i class="fa fa-play" aria-hidden="true"></i>';
+      } else {
+        timeline.start();
+        playButton.innerHTML = '<i class="fa fa-pause" aria-hidden="true"></i>';
+      }
     });
 
     var clearButton = document.getElementById("clear");
@@ -88,6 +81,23 @@
       timeline.stop();
       timeline.reset();
     });
+
+    document.addEventListener("keydown", (event) => {
+      event.preventDefault();
+      if (event.code == 'Enter') {
+        beats.push(timeline.currentTime());
+        timeline.start();
+        playButton.innerHTML = '<i class="fa fa-pause" aria-hidden="true"></i>';
+      }
+    });
+
+    canvasOverlay.addEventListener("touchstart", (event) => {
+      event.preventDefault();
+      beats.push(timeline.currentTime());
+      timeline.start();
+      playButton.innerHTML = '<i class="fa fa-pause" aria-hidden="true"></i>';
+    });
+
   </script>
 </body>
 

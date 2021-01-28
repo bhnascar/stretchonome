@@ -1,17 +1,23 @@
+const defaultSettings = {
+  windowSize: 5,
+  majorInterval: 1,
+  minorInterval: 0.25,
+};
+
 class Timeline {
-  constructor(canvas, canvasOverlay) {
+  constructor(canvas, canvasOverlay, settings) {
     this.canvas = canvas;
     this.canvasOverlay = canvasOverlay;
 
     this.ctx = canvas.getContext('2d');
     this.resize();
 
+    this.settings = {
+      ...defaultSettings,
+      ...settings,
+    };
+
     this.active = false;
-
-    this.windowSize = 5;
-    this.majorInterval = 1;
-    this.minorInterval = 0.25;
-
     this.curTime = 0;
     this.lastFrameTimeMS = 0;
 
@@ -39,16 +45,17 @@ class Timeline {
   }
 
   drawTicks(time) {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    const left = time - 0.5 * this.windowSize;
-    const right = time + 0.5 * this.windowSize;
-    let cur = Math.ceil(left / this.minorInterval) * this.minorInterval;
+    const { windowSize, minorInterval, majorInterval } = this.settings;
+    const left = time - 0.5 * windowSize;
+    const right = time + 0.5 * windowSize;
     const majorLineHeight = 0.12 * this.canvas.clientHeight;
     const minorLineHeight = 0.08 * this.canvas.clientHeight;
+
+    let cur = Math.ceil(left / minorInterval) * minorInterval;
     while (cur < right) {
       if (cur >= 0) {
-        const x = ((cur - left) / this.windowSize) * this.canvas.clientWidth;
-        const isMajorInterval = (cur / this.majorInterval) - Math.floor(cur / this.majorInterval) < 0.001;
+        const x = ((cur - left) / windowSize) * this.canvas.clientWidth;
+        const isMajorInterval = (cur / majorInterval) - Math.floor(cur / majorInterval) < 0.001;
         const lineHeight = (isMajorInterval) ? majorLineHeight : minorLineHeight;
         this.ctx.beginPath();
         this.ctx.moveTo(x, 0);
@@ -58,13 +65,14 @@ class Timeline {
           this.ctx.fillText(this.toDateString(cur), x + 5, majorLineHeight - 2);
         }
       }
-      cur += this.minorInterval;
+      cur += minorInterval;
     }
   }
 
   drawBeats(time, beats) {
-    const left = time - 0.5 * this.windowSize;
-    const right = time + 0.5 * this.windowSize;
+    const { windowSize } = this.settings;
+    const left = time - 0.5 * windowSize;
+    const right = time + 0.5 * windowSize;
     
     const validBeats = [];
     for (let i = 0; i < beats.length; i++) {
@@ -90,7 +98,7 @@ class Timeline {
         node.style.borderRadius = '4px';
         this.nodePool.push(node);
       }
-      const x = ((beat - left) / this.windowSize) * this.canvas.clientWidth;
+      const x = ((beat - left) / windowSize) * this.canvas.clientWidth;
       node.style.left = `${x - 4}px`;
       node.style.top = `${offsetTop}px`;
       node.style.height = `${beatHeight}px`;
@@ -110,7 +118,7 @@ class Timeline {
   }
 
   setWindowSize(windowSize) {
-    this.windowSize = Math.min(Math.max(2, windowSize), 10);
+    this.settings.windowSize = Math.min(Math.max(2, windowSize), 10);
   }
 
   currentTime() {
@@ -145,6 +153,7 @@ class Timeline {
     if (this.active) {
       this.curTime += (timeMS - this.lastFrameTimeMS) / 1000;
     }
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawTicks(this.curTime);
     this.drawBeats(this.curTime, beats);
     this.lastFrameTimeMS = timeMS;
