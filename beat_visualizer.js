@@ -29,6 +29,14 @@ class BeatVisualizer {
       }
     }
 
+    if (this.beats.length == 0) {
+      for (let beat in this.activeNodes) {
+        const node = this.activeNodes[beat];
+        delete this.activeNodes[beat];
+        this.nodePool.putNode(node);
+      }
+    }
+
     let offsetTop = this.canvasOverlay.clientHeight * 0.25;
     let beatHeight = this.canvasOverlay.clientHeight * 0.5;
     for (let i = 0; i < validBeats.length; i++) {
