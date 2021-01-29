@@ -8,7 +8,7 @@ class BeatVisualizer {
   }
 
   render(timelineState) {
-    const { windowMin, windowMax } = timelineState;
+    const { windowMin, windowMax, windowWidth, windowHeight } = timelineState;
     const windowSize = windowMax - windowMin;
     
     const validBeats = [];
@@ -37,12 +37,12 @@ class BeatVisualizer {
       }
     }
 
-    let offsetTop = this.canvasOverlay.clientHeight * 0.25;
-    let beatHeight = this.canvasOverlay.clientHeight * 0.5;
+    let offsetTop = windowHeight * 0.25;
+    let beatHeight = windowHeight * 0.5;
     for (let i = 0; i < validBeats.length; i++) {
       var beat = validBeats[i];
       const node = this.activeNodes[beat];
-      const x = ((beat - windowMin) / windowSize) * this.canvasOverlay.clientWidth;
+      const x = ((beat - windowMin) / windowSize) * windowWidth;
       node.style.left = `${x - 4}px`;
       node.style.top = `${offsetTop}px`;
       node.style.height = `${beatHeight}px`;

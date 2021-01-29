@@ -30,6 +30,9 @@ class Timeline {
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
 
+    this.windowWidth = rect.width;
+    this.windowHeight = rect.height;
+
     this.ctx.scale(dpr, dpr);
     this.ctx.font = '12px sans-serif';
     this.ctx.lineWidth = 2;
@@ -44,9 +47,10 @@ class Timeline {
 
   draw(timelineState) {
     const { windowSize, minorInterval, majorInterval } = this.settings;
-    const { windowMin, windowMax } = timelineState;
-    const majorLineHeight = 0.12 * this.canvas.clientHeight;
-    const minorLineHeight = 0.08 * this.canvas.clientHeight;
+    const { windowMin, windowMax, windowWidth, windowHeight } = timelineState;
+
+    const majorLineHeight = 0.12 * windowHeight;
+    const minorLineHeight = 0.08 * windowHeight;
 
     this.ctx.strokeStyle = '#666';
     this.ctx.fillStyle = '#666';
@@ -55,7 +59,7 @@ class Timeline {
     let cur = Math.floor(windowMin / minorInterval) * minorInterval;
     while (cur < windowMax) {
       if (cur >= 0) {
-        const x = ((cur - windowMin) / windowSize) * this.canvas.clientWidth;
+        const x = ((cur - windowMin) / windowSize) * windowWidth;
         const isMajorInterval = (cur / majorInterval) - Math.floor(cur / majorInterval) < 0.001;
         const lineHeight = (isMajorInterval) ? majorLineHeight : minorLineHeight;
         this.ctx.beginPath();
@@ -74,8 +78,8 @@ class Timeline {
     this.ctx.fillStyle = '#F00';
 
     this.ctx.beginPath();
-    this.ctx.moveTo(this.canvas.clientWidth / 2, 0);
-    this.ctx.lineTo(this.canvas.clientWidth / 2, this.canvas.clientHeight);
+    this.ctx.moveTo(windowWidth / 2, 0);
+    this.ctx.lineTo(windowWidth / 2, windowHeight);
     this.ctx.stroke();
   }
 
@@ -125,6 +129,8 @@ class Timeline {
       active: this.active,
       windowMin: this.curTime - 0.5 * this.settings.windowSize,
       windowMax: this.curTime + 0.5 * this.settings.windowSize,
+      windowWidth: this.windowWidth,
+      windowHeight: this.windowHeight,
     };
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.draw(timelineState);
