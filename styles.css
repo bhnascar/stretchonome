@@ -13,6 +13,7 @@ body {
 }
 
 button {
+  min-width: 40px;
   border-radius: 4px;
   border: 1px solid #222;
   border-top: 1px solid #555;
@@ -95,5 +96,11 @@ canvas {
   text-align: center;
   z-index: 5;
   border-radius: 4px;
-  filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.3));
+}
+
+.beat {
+  width: 8px;
+  background-color: #FF0000;
+  position: absolute;
+  border-radius: 4px;
 }

@@ -17,6 +17,7 @@ class Timeline {
       ...settings,
     };
 
+    this.muted = false;
     this.active = false;
     this.curTime = 0;
     this.lastFrameTimeMS = 0;
@@ -32,8 +33,6 @@ class Timeline {
     this.ctx.scale(dpr, dpr);
 
     this.ctx.font = '12px sans-serif';
-    this.ctx.strokeStyle = '#666';
-    this.ctx.fillStyle = '#666';
     this.ctx.lineWidth = 2;
   }
 
@@ -44,6 +43,16 @@ class Timeline {
     return `${minutes}:${seconds}`;
   }
 
+  drawNeedle() {
+    this.ctx.strokeStyle = '#F00';
+    this.ctx.fillStyle = '#F00';
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.canvas.clientWidth / 2, 0);
+    this.ctx.lineTo(this.canvas.clientWidth / 2, this.canvas.clientHeight);
+    this.ctx.stroke();
+  }
+
   drawTicks(time) {
     const { windowSize, minorInterval, majorInterval } = this.settings;
     const left = time - 0.5 * windowSize;
@@ -51,7 +60,10 @@ class Timeline {
     const majorLineHeight = 0.12 * this.canvas.clientHeight;
     const minorLineHeight = 0.08 * this.canvas.clientHeight;
 
-    let cur = Math.ceil(left / minorInterval) * minorInterval;
+    this.ctx.strokeStyle = '#666';
+    this.ctx.fillStyle = '#666';
+
+    let cur = Math.floor(left / minorInterval) * minorInterval;
     while (cur < right) {
       if (cur >= 0) {
         const x = ((cur - left) / windowSize) * this.canvas.clientWidth;
@@ -92,10 +104,7 @@ class Timeline {
         node = this.nodePool[reuseIndex];
       } else {
         node = document.createElement('div');
-        node.style.width = '8px';
-        node.style.backgroundColor = '#FF0000';
-        node.style.position = "absolute";
-        node.style.borderRadius = '4px';
+        node.classList.add('beat');
         this.nodePool.push(node);
       }
       const x = ((beat - left) / windowSize) * this.canvas.clientWidth;
@@ -145,6 +154,14 @@ class Timeline {
     this.active = false;
   }
 
+  mute() {
+    this.muted = true;
+  }
+
+  unmute() {
+    this.muted = false;
+  }
+
   setTime(time) {
     this.curTime = time;
   }
@@ -155,6 +172,7 @@ class Timeline {
     }
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawTicks(this.curTime);
+    this.drawNeedle();
     this.drawBeats(this.curTime, beats);
     this.lastFrameTimeMS = timeMS;
   }

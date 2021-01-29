@@ -16,7 +16,6 @@
     <canvas></canvas>
     <div id="canvas-overlay"></div>
     <div id="time-label"></div>
-    <div id="needle"></div>
   </div>
   <div id="ui-wrapper">
     <div id="controls">
@@ -24,6 +23,7 @@
       <button id="begin"><i class="fa fa-step-backward" aria-hidden="true"></i></button>
       <button id="play"><i class="fa fa-play" aria-hidden="true"></i></button>
       <button id="end"><i class="fa fa-step-forward" aria-hidden="true"></i></button>
+      <button id="mute" style="display:none"><i class="fa fa-volume-up" aria-hidden="true"></i></button>
       <button id="clear">Reset</button>
     </div>
   </div>
@@ -80,6 +80,18 @@
       beats.length = 0;
       timeline.stop();
       timeline.reset();
+      playButton.innerHTML = '<i class="fa fa-play" aria-hidden="true"></i>';
+    });
+
+    var muteButton = document.getElementById("mute");
+    muteButton.addEventListener("click", () => {
+      if (!timeline.muted) {
+        timeline.mute();
+        muteButton.innerHTML = '<i class="fa fa-volume-off" aria-hidden="true"></i>';
+      } else {
+        timeline.unmute();
+        muteButton.innerHTML = '<i class="fa fa-volume-up" aria-hidden="true"></i>';
+      }
     });
 
     document.addEventListener("keydown", (event) => {
