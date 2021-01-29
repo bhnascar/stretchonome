@@ -100,7 +100,7 @@ canvas {
 
 .beat {
   width: 8px;
-  background-color: #FF0000;
+  background-color: #555;
   position: absolute;
   border-radius: 4px;
 }
