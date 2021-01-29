@@ -26,7 +26,7 @@ class Timeline {
   resize() {
     var rect = canvas.getBoundingClientRect();
     var dpr = window.devicePixelRatio || 1;
-    
+
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
 
@@ -120,6 +120,7 @@ class Timeline {
       this.curTime += (timeMS - this.lastFrameTimeMS) / 1000;
     }
     const timelineState = {
+      ctx: this.ctx,
       curTime: this.curTime,
       active: this.active,
       windowMin: this.curTime - 0.5 * this.settings.windowSize,
