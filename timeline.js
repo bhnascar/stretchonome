@@ -5,9 +5,8 @@ const defaultSettings = {
 };
 
 class Timeline {
-  constructor(canvas, canvasOverlay, settings) {
+  constructor(canvas, settings) {
     this.canvas = canvas;
-    this.canvasOverlay = canvasOverlay;
 
     this.ctx = canvas.getContext('2d');
     this.resize();
@@ -17,21 +16,21 @@ class Timeline {
       ...settings,
     };
 
-    this.muted = false;
     this.active = false;
     this.curTime = 0;
     this.lastFrameTimeMS = 0;
 
-    this.nodePool = [];
+    this.plugins = [];
   }
 
   resize() {
     var rect = canvas.getBoundingClientRect();
     var dpr = window.devicePixelRatio || 1;
+    
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
-    this.ctx.scale(dpr, dpr);
 
+    this.ctx.scale(dpr, dpr);
     this.ctx.font = '12px sans-serif';
     this.ctx.lineWidth = 2;
   }
@@ -43,30 +42,20 @@ class Timeline {
     return `${minutes}:${seconds}`;
   }
 
-  drawNeedle() {
-    this.ctx.strokeStyle = '#F00';
-    this.ctx.fillStyle = '#F00';
-
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.canvas.clientWidth / 2, 0);
-    this.ctx.lineTo(this.canvas.clientWidth / 2, this.canvas.clientHeight);
-    this.ctx.stroke();
-  }
-
-  drawTicks(time) {
+  draw(timelineState) {
     const { windowSize, minorInterval, majorInterval } = this.settings;
-    const left = time - 0.5 * windowSize;
-    const right = time + 0.5 * windowSize;
+    const { windowMin, windowMax } = timelineState;
     const majorLineHeight = 0.12 * this.canvas.clientHeight;
     const minorLineHeight = 0.08 * this.canvas.clientHeight;
 
     this.ctx.strokeStyle = '#666';
     this.ctx.fillStyle = '#666';
 
-    let cur = Math.floor(left / minorInterval) * minorInterval;
-    while (cur < right) {
+    // Draw ticks.
+    let cur = Math.floor(windowMin / minorInterval) * minorInterval;
+    while (cur < windowMax) {
       if (cur >= 0) {
-        const x = ((cur - left) / windowSize) * this.canvas.clientWidth;
+        const x = ((cur - windowMin) / windowSize) * this.canvas.clientWidth;
         const isMajorInterval = (cur / majorInterval) - Math.floor(cur / majorInterval) < 0.001;
         const lineHeight = (isMajorInterval) ? majorLineHeight : minorLineHeight;
         this.ctx.beginPath();
@@ -79,51 +68,19 @@ class Timeline {
       }
       cur += minorInterval;
     }
+
+    // Draw needle.
+    this.ctx.strokeStyle = '#F00';
+    this.ctx.fillStyle = '#F00';
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.canvas.clientWidth / 2, 0);
+    this.ctx.lineTo(this.canvas.clientWidth / 2, this.canvas.clientHeight);
+    this.ctx.stroke();
   }
 
-  drawBeats(time, beats) {
-    const { windowSize } = this.settings;
-    const left = time - 0.5 * windowSize;
-    const right = time + 0.5 * windowSize;
-    
-    const validBeats = [];
-    for (let i = 0; i < beats.length; i++) {
-      const beat = beats[i];
-      if (beat >= left && beat <= right) {
-        validBeats.push(beat);
-      }
-    }
-
-    let reuseIndex = 0;
-    let offsetTop = this.canvas.clientHeight * 0.25;
-    let beatHeight = this.canvas.clientHeight * 0.5;
-    for (let i = 0; i < validBeats.length; i++) {
-      var beat = validBeats[i];
-      let node;
-      if (this.nodePool.length > reuseIndex) {
-        node = this.nodePool[reuseIndex];
-      } else {
-        node = document.createElement('div');
-        node.classList.add('beat');
-        this.nodePool.push(node);
-      }
-      const x = ((beat - left) / windowSize) * this.canvas.clientWidth;
-      node.style.left = `${x - 4}px`;
-      node.style.top = `${offsetTop}px`;
-      node.style.height = `${beatHeight}px`;
-      if (!node.parentNode) {
-        this.canvasOverlay.appendChild(node);
-      }
-      reuseIndex++;
-    };
-
-    while (reuseIndex < this.nodePool.length) {
-      let node = this.nodePool[reuseIndex];
-      if (node.parentNode) {
-        node.parentNode.removeChild(node);
-      }
-      reuseIndex++;
-    }
+  addPlugin(plugin) {
+    this.plugins.push(plugin);
   }
 
   setWindowSize(windowSize) {
@@ -154,26 +111,25 @@ class Timeline {
     this.active = false;
   }
 
-  mute() {
-    this.muted = true;
-  }
-
-  unmute() {
-    this.muted = false;
-  }
-
   setTime(time) {
     this.curTime = time;
   }
 
-  render(timeMS, beats) {
+  render(timeMS) {
     if (this.active) {
       this.curTime += (timeMS - this.lastFrameTimeMS) / 1000;
     }
+    const timelineState = {
+      curTime: this.curTime,
+      active: this.active,
+      windowMin: this.curTime - 0.5 * this.settings.windowSize,
+      windowMax: this.curTime + 0.5 * this.settings.windowSize,
+    };
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.drawTicks(this.curTime);
-    this.drawNeedle();
-    this.drawBeats(this.curTime, beats);
+    this.draw(timelineState);
+    this.plugins.forEach((plugin) => {
+      plugin.render(timelineState);
+    })
     this.lastFrameTimeMS = timeMS;
   }
 }

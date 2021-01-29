@@ -8,6 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   <script src="timeline.js"></script>
+  <script src="beat_visualizer.js"></script>
   <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -34,11 +35,14 @@
     const canvas = document.querySelector("canvas");
     const canvasOverlay = document.getElementById("canvas-overlay");
     const timeLabel = document.getElementById("time-label");
-    const timeline = new Timeline(canvas, canvasOverlay, {
+    const timeline = new Timeline(canvas, {
       windowSize: 5,
       majorInterval: 1,
       minorInterval: 0.125,
     });
+
+    const beatVisualizer = new BeatVisualizer(canvasOverlay, beats);
+    timeline.addPlugin(beatVisualizer);
 
     const loop = (timeMS) => {
       timeLabel.innerText = timeline.currentTimeString();
