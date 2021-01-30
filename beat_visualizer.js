@@ -11,39 +11,41 @@ class BeatVisualizer {
     const { curTime, windowMin, windowMax, windowWidth, windowHeight } = timelineState;
     const windowSize = windowMax - windowMin;
 
-    const validBeats = this.getBeatsInRange(this.beats, windowMin, windowMax);
+    const currentNodes = {};
 
-    let currentNodes = {};
-    for (let i = 0; i < validBeats.length; i++) {
-      var beat = validBeats[i];
+    const start = this.binarySearchGE(this.beats, windowMin);
+    if (start >= 0) {
+      for (let i = start; i < this.beats.length && this.beats[i] <= windowMax; i++) {
+        var beat = beats[i];
 
-      // Reuse or get a DOM node for this beat.
-      let node = this.activeNodes[beat];
-      if (!node) {
-        node = this.nodePool.getNode('div');
-        node.classList.add('beat');
-        this.canvasOverlay.appendChild(node);
-      }
-      currentNodes[beat] = node;
-
-      // Position the node.
-      const x = ((beat - windowMin) / windowSize) * windowWidth;
-      node.style.left = `${x - 4}px`;
-      node.style.top = `${windowHeight * 0.25}px`;
-      node.style.height = `${windowHeight * 0.5}px`;
-
-      // Animate nodes that overlap with 'now'.
-      const timeGap = (curTime - beat);
-      if (timeGap < 0.6 && timeGap > 0) {
-        if (!node.classList.contains('beat-bounce')) {
-          node.classList.add('beat-bounce');
+        // Reuse or get a DOM node for this beat.
+        let node = this.activeNodes[beat];
+        if (!node) {
+          node = this.nodePool.getNode('div');
+          node.classList.add('beat');
+          this.canvasOverlay.appendChild(node);
         }
-      } else {
-        if (node.classList.contains('beat-bounce')) {
-          node.classList.remove('beat-bounce');
+        currentNodes[beat] = node;
+
+        // Position the node.
+        const x = ((beat - windowMin) / windowSize) * windowWidth;
+        node.style.left = `${x - 4}px`;
+        node.style.top = `${windowHeight * 0.25}px`;
+        node.style.height = `${windowHeight * 0.5}px`;
+
+        // Animate nodes that overlap with 'now'.
+        const timeGap = (curTime - beat);
+        if (timeGap < 0.6 && timeGap > 0) {
+          if (!node.classList.contains('beat-bounce')) {
+            node.classList.add('beat-bounce');
+          }
+        } else {
+          if (node.classList.contains('beat-bounce')) {
+            node.classList.remove('beat-bounce');
+          }
         }
-      }
-    };
+      };
+    }
 
     // Free unused nodes.
     for (const beat in this.activeNodes) {
@@ -53,15 +55,6 @@ class BeatVisualizer {
       }
     }
     this.activeNodes = currentNodes;
-  }
-
-  getBeatsInRange(beats, min, max) {
-    const start = this.binarySearchGE(beats, min);
-    if (start < 0) {
-      return [];
-    }
-    const end = (this.binarySearchGE(beats, max) + 1) || beats.length;
-    return beats.slice(start, end);
   }
 
   binarySearchGE(arr, target) {
