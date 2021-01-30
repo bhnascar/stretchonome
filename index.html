@@ -13,6 +13,8 @@
   <script src="timeline.js"></script>
   <script src="dom_pool.js"></script>
   <script src="beat_visualizer.js"></script>
+  <script src="beat_audio.js"></script>
+  <script src="beat_estimator.js"></script>
 </head>
 
 <body>
@@ -44,12 +46,13 @@
       minorInterval: 0.125,
     });
 
-    const beatVisualizer = new BeatVisualizer(canvasOverlay, beats);
-    timeline.addPlugin(beatVisualizer);
+    timeline.addPlugin(new BeatVisualizer(canvasOverlay, beats));
+    timeline.addPlugin(new BeatAudio(beats));
+    timeline.addPlugin(new BeatEstimator(beats));
 
     const loop = (timeMS) => {
       timeLabel.innerText = timeline.currentTimeString();
-      timeline.render(timeMS, beats);
+      timeline.render(timeMS);
       return window.requestAnimationFrame(loop);
     };
     window.requestAnimationFrame(loop);
@@ -101,20 +104,23 @@
       }
     });
 
+    const addBeat = () => {
+      beats.push(timeline.currentTime());
+      beats.sort((a, b) => (a - b));
+      timeline.start();
+      playButton.innerHTML = '<i class="fa fa-pause" aria-hidden="true"></i>';
+    }
+
     document.addEventListener("keydown", (event) => {
       event.preventDefault();
       if (event.code == 'Enter') {
-        beats.push(timeline.currentTime());
-        timeline.start();
-        playButton.innerHTML = '<i class="fa fa-pause" aria-hidden="true"></i>';
+        addBeat();
       }
     });
 
     canvasOverlay.addEventListener("touchstart", (event) => {
       event.preventDefault();
-      beats.push(timeline.currentTime());
-      timeline.start();
-      playButton.innerHTML = '<i class="fa fa-pause" aria-hidden="true"></i>';
+      addBeat();
     });
 
   </script>

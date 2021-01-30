@@ -66,11 +66,18 @@ class Timeline {
         this.ctx.moveTo(x, 0);
         this.ctx.lineTo(x, lineHeight);
         this.ctx.stroke();
-        if (isMajorInterval) {
-          this.ctx.fillText(this.toDateString(cur), x + 5, majorLineHeight - 2);
-        }
       }
       cur += minorInterval;
+    }
+
+    // Draw labels (separate pass to avoid state changes).
+    cur = Math.floor(windowMin / majorInterval) * majorInterval;
+    while (cur < windowMax) {
+      if (cur >= 0) {
+        const x = ((cur - windowMin) / windowSize) * windowWidth;
+        this.ctx.fillText(this.toDateString(cur), x + 5, majorLineHeight - 2);
+      }
+      cur += majorInterval;
     }
 
     // Draw needle.

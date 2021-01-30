@@ -10,66 +10,75 @@ class BeatVisualizer {
   render(timelineState) {
     const { curTime, windowMin, windowMax, windowWidth, windowHeight } = timelineState;
     const windowSize = windowMax - windowMin;
-    
-    const validBeats = [];
-    for (let i = 0; i < beats.length; i++) {
-      const beat = beats[i];
-      if (beat >= windowMin && beat <= windowMax) {
-        validBeats.push(beat);
-        if (!this.activeNodes[beat]) {
-          const node = this.nodePool.getNode('div');
-          node.classList.add('beat');
-          this.canvasOverlay.appendChild(node);
-          this.activeNodes[beat] = node;
-        }
-      } else if (this.activeNodes[beat]) {
-        const node = this.activeNodes[beat];
-        delete this.activeNodes[beat];
-        this.nodePool.putNode(node);
-      }
-    }
 
-    if (this.beats.length == 0) {
-      for (let beat in this.activeNodes) {
-        const node = this.activeNodes[beat];
-        delete this.activeNodes[beat];
-        this.nodePool.putNode(node);
-      }
-    }
+    const validBeats = this.getBeatsInRange(this.beats, windowMin, windowMax);
 
-    let offsetTop = windowHeight * 0.25;
-    let beatHeight = windowHeight * 0.5;
+    let currentNodes = {};
     for (let i = 0; i < validBeats.length; i++) {
       var beat = validBeats[i];
-      const node = this.activeNodes[beat];
+
+      // Reuse or get a DOM node for this beat.
+      let node = this.activeNodes[beat];
+      if (!node) {
+        node = this.nodePool.getNode('div');
+        node.classList.add('beat');
+        this.canvasOverlay.appendChild(node);
+      }
+      currentNodes[beat] = node;
+
+      // Position the node.
       const x = ((beat - windowMin) / windowSize) * windowWidth;
       node.style.left = `${x - 4}px`;
-      node.style.top = `${offsetTop}px`;
-      node.style.height = `${beatHeight}px`;
+      node.style.top = `${windowHeight * 0.25}px`;
+      node.style.height = `${windowHeight * 0.5}px`;
 
+      // Animate nodes that overlap with 'now'.
       const timeGap = (curTime - beat);
       if (timeGap < 0.6 && timeGap > 0) {
-        const t = this.easeInOutCubic(timeGap / 0.6);
-        const xScale = this.lerp(2, 1, t);
-        const yScale = this.lerp(1.2, 1, t);
-        const r = this.lerp(255, 85, t);
-        const g = this.lerp(0, 85, t);
-        const b = this.lerp(0, 85, t);
-        node.style.backgroundColor = `rgb(${r},${g},${b})`;
-        node.style.transform = `scale(${xScale}, ${yScale})`;
+        if (!node.classList.contains('beat-bounce')) {
+          node.classList.add('beat-bounce');
+        }
       } else {
-        node.style.backgroundColor = null;
-        node.style.transform = null;
+        if (node.classList.contains('beat-bounce')) {
+          node.classList.remove('beat-bounce');
+        }
       }
     };
+
+    // Free unused nodes.
+    for (const beat in this.activeNodes) {
+      if (!currentNodes[beat]) {
+        const node = this.activeNodes[beat];
+        this.nodePool.putNode(node);
+      }
+    }
+    this.activeNodes = currentNodes;
   }
 
-  easeInOutCubic(x) {
-    return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  getBeatsInRange(beats, min, max) {
+    const start = this.binarySearchGE(beats, min);
+    if (start < 0) {
+      return [];
+    }
+    const end = (this.binarySearchGE(beats, max) + 1) || beats.length;
+    return beats.slice(start, end);
   }
 
-  lerp(a, b, t) {
-    t = Math.min(1, Math.max(t, 0));
-    return (1 - t) * a + t * b;
+  binarySearchGE(arr, target) {
+    let start = 0;
+    let end = arr.length - 1;
+
+    while (start <= end) {
+      const mid = Math.floor((start + end) / 2);
+      if (arr[mid] >= target && (mid == 0 || arr[mid - 1] < target)) {
+        return mid;
+      }
+      if (arr[mid] < target) {
+        start = mid + 1;
+      } else {
+        end = mid - 1;
+      }
+    }
+    return -1;
   }
 }
