@@ -39,9 +39,8 @@ class Timeline {
   }
 
   toDateString(time) {
-    const tmp = new Date(time * 1000);
-    const minutes = tmp.getUTCMinutes().toString().padStart(2, '0');
-    const seconds = tmp.getSeconds().toString().padStart(2, '0');
+    const minutes = `${Math.floor(time / 60)}`.padStart(2, '0');
+    const seconds = `${time - Math.floor(time / 60) * 60}`.padStart(2, '0');
     return `${minutes}:${seconds}`;
   }
 
