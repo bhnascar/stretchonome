@@ -23,9 +23,9 @@ class DOMPool {
       freeList = [];
       this.freeLists[tagName] = freeList;
     }
-    freeList.push(node);
     if (node.parentNode) {
       node.parentNode.removeChild(node);
     }
+    freeList.push(node);
   }
 }

@@ -12,9 +12,8 @@
   <link rel="stylesheet" href="styles.css">
   <script src="timeline.js"></script>
   <script src="dom_pool.js"></script>
+  <script src="beat_manager.js"></script>
   <script src="beat_visualizer.js"></script>
-  <script src="beat_audio.js"></script>
-  <script src="beat_estimator.js"></script>
 </head>
 
 <body>
@@ -35,7 +34,7 @@
   </div>
 
   <script type="text/javascript">
-    const beats = [];
+    const beatManager = new BeatManager();
 
     const canvas = document.querySelector("canvas");
     const canvasOverlay = document.getElementById("canvas-overlay");
@@ -46,9 +45,7 @@
       minorInterval: 0.125,
     });
 
-    timeline.addPlugin(new BeatVisualizer(canvasOverlay, beats));
-    timeline.addPlugin(new BeatAudio(beats));
-    timeline.addPlugin(new BeatEstimator(beats));
+    timeline.addPlugin(new BeatVisualizer(canvasOverlay, beatManager));
 
     const loop = (timeMS) => {
       timeLabel.innerText = timeline.currentTimeString();
@@ -72,6 +69,7 @@
 
     var endButton = document.getElementById("end");
     endButton.addEventListener("click", () => {
+      const { beats } = beatManager;
       timeline.setTime(beats.length > 0 ? beats[beats.length - 1] : 0);
     });
 
@@ -88,7 +86,7 @@
 
     var clearButton = document.getElementById("clear");
     clearButton.addEventListener("click", () => {
-      beats.length = 0;
+      beatManager.clear();
       timeline.stop();
       timeline.reset();
       playButton.innerHTML = '<i class="fa fa-play" aria-hidden="true"></i>';
@@ -106,15 +104,14 @@
     });
 
     const addBeat = () => {
-      beats.push(timeline.currentTime());
-      beats.sort((a, b) => (a - b));
+      beatManager.addBeat(timeline.currentTime());
       timeline.start();
       playButton.innerHTML = '<i class="fa fa-pause" aria-hidden="true"></i>';
     }
 
     document.addEventListener("keydown", (event) => {
-      event.preventDefault();
       if (event.code == 'Enter') {
+        event.preventDefault();
         addBeat();
       }
     });

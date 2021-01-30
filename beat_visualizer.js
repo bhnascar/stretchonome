@@ -1,7 +1,7 @@
 class BeatVisualizer {
-  constructor(canvasOverlay, beats) {
+  constructor(canvasOverlay, beatManager) {
     this.canvasOverlay = canvasOverlay;
-    this.beats = beats;
+    this.beatManager = beatManager;
 
     this.activeNodes = {};
     this.nodePool = new DOMPool();
@@ -12,10 +12,11 @@ class BeatVisualizer {
     const windowSize = windowMax - windowMin;
 
     const currentNodes = {};
+    const { beats } = this.beatManager;
 
-    const start = this.binarySearchGE(this.beats, windowMin);
+    const start = this.beatManager.binarySearchGE(beats, windowMin);
     if (start >= 0) {
-      for (let i = start; i < this.beats.length && this.beats[i] <= windowMax; i++) {
+      for (let i = start; i < beats.length && beats[i] <= windowMax; i++) {
         var beat = beats[i];
 
         // Reuse or get a DOM node for this beat.
@@ -51,6 +52,7 @@ class BeatVisualizer {
     for (const beat in this.activeNodes) {
       if (!currentNodes[beat]) {
         const node = this.activeNodes[beat];
+        this.canvasOverlay.removeChild(node);
         this.nodePool.putNode(node);
       }
     }
