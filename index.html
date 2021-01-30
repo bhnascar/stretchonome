@@ -61,7 +61,8 @@
 
     document.onwheel = (event) => {
       event.preventDefault();
-      timeline.setWindowSize(timeline.settings.windowSize + 0.1 * event.deltaY);
+      const sign = event.deltaY > 0 ? 1 : -1;
+      timeline.setWindowSize(timeline.settings.windowSize + 0.5 * sign);
     }
 
     var beginButton = document.getElementById("begin");
