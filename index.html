@@ -14,6 +14,7 @@
   <script src="dom_pool.js"></script>
   <script src="beat_manager.js"></script>
   <script src="beat_visualizer.js"></script>
+  <script src="tempo_estimator.js"></script>
 </head>
 
 <body>
@@ -24,7 +25,7 @@
   </div>
   <div id="ui-wrapper">
     <div id="controls">
-      <p>Press enter to insert beats</p>
+      <p id="tempo-label">Press enter to insert beats</p>
       <button id="begin"><i class="fa fa-step-backward" aria-hidden="true"></i></button>
       <button id="play"><i class="fa fa-play" aria-hidden="true"></i></button>
       <button id="end"><i class="fa fa-step-forward" aria-hidden="true"></i></button>
@@ -35,10 +36,12 @@
 
   <script type="text/javascript">
     const beatManager = new BeatManager();
+    const tempoEstimator = new TempoEstimator(beatManager);
 
     const canvas = document.querySelector("canvas");
     const canvasOverlay = document.getElementById("canvas-overlay");
     const timeLabel = document.getElementById("time-label");
+    const tempoLabel = document.getElementById("tempo-label");
     const timeline = new Timeline(canvas, {
       windowSize: 5,
       majorInterval: 1,
@@ -49,6 +52,7 @@
 
     const loop = (timeMS) => {
       timeLabel.innerText = timeline.currentTimeString();
+      tempoLabel.innerText = Math.floor(tempoEstimator.estimateTempo(timeline.currentTime()));
       timeline.render(timeMS);
       return window.requestAnimationFrame(loop);
     };
