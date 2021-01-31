@@ -45,36 +45,48 @@ class Timeline {
   }
 
   draw(timelineState) {
-    const { windowSize, minorInterval, majorInterval } = this.settings;
+    const { windowSize, majorInterval } = this.settings;
     const { windowMin, windowMax, windowWidth, windowHeight } = timelineState;
 
-    const majorLineHeight = 0.12 * windowHeight;
-    const minorLineHeight = 0.08 * windowHeight;
-
-    this.ctx.strokeStyle = '#666';
-    this.ctx.fillStyle = '#666';
-
     // Draw ticks.
-    let cur = Math.floor(windowMin / minorInterval) * minorInterval;
+    let cur = Math.floor(windowMin / majorInterval) * majorInterval;
     while (cur < windowMax) {
       if (cur >= 0) {
         const x = ((cur - windowMin) / windowSize) * windowWidth;
-        const isMajorInterval = (cur / majorInterval) - Math.floor(cur / majorInterval) < 0.001;
-        const lineHeight = (isMajorInterval) ? majorLineHeight : minorLineHeight;
+        this.ctx.beginPath();
+        this.ctx.moveTo(x + 1, 0);
+        this.ctx.lineTo(x + 1, windowHeight);
+        this.ctx.strokeStyle = '#2A2A2A';
+        this.ctx.stroke();
+
         this.ctx.beginPath();
         this.ctx.moveTo(x, 0);
-        this.ctx.lineTo(x, lineHeight);
+        this.ctx.lineTo(x, windowHeight);
+        this.ctx.strokeStyle = '#1C1C1C';
         this.ctx.stroke();
       }
-      cur += minorInterval;
+      cur += majorInterval;
     }
+
+    // Draw track.
+    this.ctx.beginPath();
+    this.ctx.fillStyle = 'rgba(50, 50, 50, 0.6)';
+    this.ctx.rect(0, 0, windowWidth, 30);
+    this.ctx.fill();
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, 31);
+    this.ctx.lineTo(windowWidth, 31);
+    this.ctx.strokeStyle = '#1A1A1A';
+    this.ctx.stroke();
 
     // Draw labels (separate pass to avoid state changes).
     cur = Math.floor(windowMin / majorInterval) * majorInterval;
     while (cur < windowMax) {
       if (cur >= 0) {
         const x = ((cur - windowMin) / windowSize) * windowWidth;
-        this.ctx.fillText(this.toDateString(cur), x + 5, majorLineHeight - 2);
+        this.ctx.fillStyle = '#666';
+        this.ctx.fillText(this.toDateString(cur), x + 5, 20);
       }
       cur += majorInterval;
     }

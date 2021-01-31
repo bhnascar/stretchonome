@@ -37,8 +37,11 @@ class BeatManager {
 
   addBeat(time) {
     let idx = this.binarySearchGE(this.beats, time);
-    if (idx == -1) {
+    if (idx < 0) {
       idx = this.beats.length;
+    }
+    if (idx < this.beats.length && this.beats[idx] == time) {
+      return;
     }
     this.beats.splice(idx, 0, time);
   }

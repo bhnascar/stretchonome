@@ -11,6 +11,11 @@ class BeatVisualizer {
     const { curTime, windowMin, windowMax, windowWidth, windowHeight } = timelineState;
     const windowSize = windowMax - windowMin;
 
+    const trackHeight = 30;
+    const uiheight = 120;
+    const pad = Math.max(40, 0.15 * windowHeight);
+    const beatHeight = windowHeight - (trackHeight + uiheight + 2 * pad);
+
     const currentNodes = {};
     const { beats } = this.beatManager;
 
@@ -31,8 +36,8 @@ class BeatVisualizer {
         // Position the node.
         const x = ((beat - windowMin) / windowSize) * windowWidth;
         node.style.left = `${x - 4}px`;
-        node.style.top = `${windowHeight * 0.25}px`;
-        node.style.height = `${windowHeight * 0.5}px`;
+        node.style.top = `${trackHeight + pad}px`;
+        node.style.height = `${beatHeight}px`;
 
         // Animate nodes that overlap with 'now'.
         const timeGap = (curTime - beat);
