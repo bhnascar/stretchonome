@@ -36,6 +36,7 @@ class TempoEstimator {
   }
 
   render(timelineState) {
+    const { beats } = this.beatManager;
     const { ctx, curTime, windowMin, windowMax, windowWidth, windowHeight } = timelineState;
 
     const height = windowHeight / 2;
@@ -46,7 +47,10 @@ class TempoEstimator {
     const segments = 400;
     const sampleRate = (windowMax - windowMin) / segments;
 
-    for (let t = Math.max(0, windowMin); t <= Math.min(windowMax, curTime); t += sampleRate) {
+    const start = Math.max(0, windowMin);
+    const end = Math.min(windowMax, Math.max(beats[beats.length - 1], curTime));
+
+    for (let t = start; t <= end; t += sampleRate) {
       const tempo = this.estimateTempo(t);
       min_tempo = Math.min(tempo, min_tempo);
       max_tempo = Math.max(tempo, max_tempo);
