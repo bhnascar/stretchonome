@@ -2,7 +2,6 @@
 class BeatManager {
   constructor() {
     this.beats = [];
-    this.averages = {};
 
     // Gaussian weights for averaging.
     this.weights = [
@@ -25,16 +24,10 @@ class BeatManager {
     if (idx < 1 || idx >= this.beats.length) {
       return 0;
     }
-    if (this.averages[idx]) {
-      return this.averages[idx];
-    }
     let avg = 0;
     for (let i = 0; i < this.weights.length; i++) {
       avg += this.weights[i] * this.getTempo(Math.max(1, idx - i));
       avg += this.weights[i] * this.getTempo(Math.min(this.beats.length - 1, idx + i));
-    }
-    if (idx + this.weights.length < this.beats.length) {
-      this.averages[idx] = avg;
     }
     return avg;
   }
@@ -47,9 +40,6 @@ class BeatManager {
     if (idx < this.beats.length && this.beats[idx] == time) {
       return;
     }
-    if (idx != this.beats.length) {
-      this.averages = {};
-    }
     this.beats.splice(idx, 0, time);
   }
 
@@ -57,7 +47,6 @@ class BeatManager {
     const idx = this.binarySearchGE(this.beats, time);
     if (idx > 0) {
       this.beats.splice(idx, 1);
-      this.averages = {};
     }
   }
 

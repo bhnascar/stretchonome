@@ -35,6 +35,41 @@ class TempoEstimator {
     return this.sampleCatmullRom(t, p0, p1, p2, p3);
   }
 
+  render(timelineState) {
+    const { ctx, windowMin, windowMax, windowWidth, windowHeight } = timelineState;
+
+    const height = windowHeight / 2;
+    const scale = Math.min(100, windowHeight / 2);
+
+    let max_tempo = 0, min_tempo = 0;
+    const samples = [];
+    const segments = 400;
+    const sampleRate = (windowMax - windowMin) / segments;
+
+    for (let t = Math.max(0, windowMin); t <= windowMax; t += sampleRate) {
+      const tempo = this.estimateTempo(t);
+      min_tempo = Math.min(tempo, min_tempo);
+      max_tempo = Math.max(tempo, max_tempo);
+      samples.push([t, tempo]);
+    }
+
+    ctx.beginPath();
+    for (let i = 0; i < samples.length; i++) {
+      let t, tempo;
+      [t, tempo] = samples[i];
+      const normalizedTempo = (tempo - min_tempo) / (max_tempo - min_tempo);
+      const x = windowWidth * (t - windowMin) / (windowMax - windowMin);
+      const y = height - scale * (normalizedTempo - 0.5);
+      if (i == 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.strokeStyle = '#999';
+    ctx.stroke();
+  }
+
   // Samples must contain four values
   // https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline
   sampleCatmullRom(time, p0, p1, p2, p3) {

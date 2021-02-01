@@ -49,6 +49,7 @@
     });
 
     timeline.addPlugin(new BeatVisualizer(canvasOverlay, beatManager));
+    timeline.addPlugin(tempoEstimator);
 
     const loop = (timeMS) => {
       timeLabel.innerText = timeline.currentTimeString();
