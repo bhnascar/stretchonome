@@ -36,7 +36,7 @@ class TempoEstimator {
   }
 
   render(timelineState) {
-    const { ctx, windowMin, windowMax, windowWidth, windowHeight } = timelineState;
+    const { ctx, curTime, windowMin, windowMax, windowWidth, windowHeight } = timelineState;
 
     const height = windowHeight / 2;
     const scale = Math.min(100, windowHeight / 2);
@@ -46,7 +46,7 @@ class TempoEstimator {
     const segments = 400;
     const sampleRate = (windowMax - windowMin) / segments;
 
-    for (let t = Math.max(0, windowMin); t <= windowMax; t += sampleRate) {
+    for (let t = Math.max(0, windowMin); t <= Math.min(windowMax, curTime); t += sampleRate) {
       const tempo = this.estimateTempo(t);
       min_tempo = Math.min(tempo, min_tempo);
       max_tempo = Math.max(tempo, max_tempo);
