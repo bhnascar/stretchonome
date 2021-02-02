@@ -57,7 +57,7 @@
 
     const loop = (timeMS) => {
       timeLabel.innerText = timeline.currentTimeString();
-      tempoLabel.innerText = Math.floor(tempoEstimator.estimateTempo(timeline.currentTime()));
+      tempoLabel.innerText = `Current tempo: ${Math.floor(tempoEstimator.estimateTempo(timeline.currentTime()))}`;
       timeline.render(timeMS);
       return window.requestAnimationFrame(loop);
     };
