@@ -74,7 +74,7 @@ class BeatManager {
 
     while (start <= end) {
       const mid = Math.floor((start + end) / 2);
-      if (arr[mid] <= target && (mid == arr.length || arr[mid + 1] > target)) {
+      if (arr[mid] <= target && (mid == arr.length - 1 || arr[mid + 1] > target)) {
         return mid;
       }
       if (arr[mid] < target) {
