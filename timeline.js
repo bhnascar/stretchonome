@@ -48,25 +48,29 @@ class Timeline {
     const { windowSize, majorInterval } = this.settings;
     const { windowMin, windowMax, windowWidth, windowHeight } = timelineState;
 
-    // Draw ticks.
-    let cur = Math.floor(windowMin / majorInterval) * majorInterval;
+    // Draw tick shadow.
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = '#1C1C1C';
+    let cur = Math.max(0, Math.floor(windowMin / majorInterval) * majorInterval);
     while (cur < windowMax) {
-      if (cur >= 0) {
-        const x = ((cur - windowMin) / windowSize) * windowWidth;
-        this.ctx.beginPath();
-        this.ctx.moveTo(x + 1, 0);
-        this.ctx.lineTo(x + 1, windowHeight);
-        this.ctx.strokeStyle = '#2A2A2A';
-        this.ctx.stroke();
-
-        this.ctx.beginPath();
-        this.ctx.moveTo(x, 0);
-        this.ctx.lineTo(x, windowHeight);
-        this.ctx.strokeStyle = '#1C1C1C';
-        this.ctx.stroke();
-      }
+      const x = ((cur - windowMin) / windowSize) * windowWidth;
+      this.ctx.moveTo(x, 0);
+      this.ctx.lineTo(x, windowHeight);
       cur += majorInterval;
     }
+    this.ctx.stroke();
+
+    // Draw tick highlight.
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = '#2A2A2A';
+    cur = Math.max(0, Math.floor(windowMin / majorInterval) * majorInterval);
+    while (cur < windowMax) {
+      const x = ((cur - windowMin) / windowSize) * windowWidth;
+      this.ctx.moveTo(x + 1, 0);
+      this.ctx.lineTo(x + 1, windowHeight);
+      cur += majorInterval;
+    }
+    this.ctx.stroke();
 
     // Draw track.
     this.ctx.beginPath();
@@ -74,6 +78,7 @@ class Timeline {
     this.ctx.rect(0, 0, windowWidth, 30);
     this.ctx.fill();
 
+    // Draw track shadow.
     this.ctx.beginPath();
     this.ctx.moveTo(0, 31);
     this.ctx.lineTo(windowWidth, 31);
@@ -81,20 +86,16 @@ class Timeline {
     this.ctx.stroke();
 
     // Draw labels (separate pass to avoid state changes).
-    cur = Math.floor(windowMin / majorInterval) * majorInterval;
+    this.ctx.fillStyle = '#666';
+    cur = Math.max(0, Math.floor(windowMin / majorInterval) * majorInterval);
     while (cur < windowMax) {
-      if (cur >= 0) {
-        const x = ((cur - windowMin) / windowSize) * windowWidth;
-        this.ctx.fillStyle = '#666';
-        this.ctx.fillText(this.toDateString(cur), x + 5, 20);
-      }
+      const x = ((cur - windowMin) / windowSize) * windowWidth;
+      this.ctx.fillText(this.toDateString(cur), x + 5, 20);
       cur += majorInterval;
     }
 
     // Draw needle.
     this.ctx.strokeStyle = '#F00';
-    this.ctx.fillStyle = '#F00';
-
     this.ctx.beginPath();
     this.ctx.moveTo(windowWidth / 2, 0);
     this.ctx.lineTo(windowWidth / 2, windowHeight);
