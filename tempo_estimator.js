@@ -16,7 +16,8 @@ class TempoEstimator {
     if (beats.length < 2) {
       return 0;
     } else if (idx == -1 || idx >= beats.length - 1) {
-      return this.beatManager.getAverageTempo(beats.length - 1, 2);
+      return (beats.length > 0 && time < beats[0]) 
+        ? 0 : this.beatManager.getAverageTempo(beats.length - 1, 2);
     }
 
     // Compute interpolation time.
