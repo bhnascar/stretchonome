@@ -8,12 +8,9 @@ class TempoEstimator {
     if (beats.length < 2) {
       return 0;
     }
-    const idx = this.beatManager.binarySearchLE(beats, time);
-    if (idx == -1 || idx >= beats.length - 1) {
-      // Not enough points to interpolate or extrapolate.
-      return (beats.length > 0 && time < beats[0]) 
-        ? 0 : this.beatManager.getAverageTempo(beats.length - 1, 2);
-    }
+    let idx = this.beatManager.binarySearchLE(beats, time);
+    idx = Math.max(0, Math.min(beats.length - 2, idx));
+    time = Math.max(0, Math.min(beats[beats.length - 1], time));
     const { t, p0, p1, p2, p3 } = this.getCatmullRomParams(idx, time);
     return this.sampleCatmullRom(t, p0, p1, p2, p3);
   }
@@ -23,10 +20,9 @@ class TempoEstimator {
     if (beats.length < 2) {
       return 0;
     }
-    const idx = this.beatManager.binarySearchLE(beats, time);
-    if (idx == -1 || idx >= beats.length - 1) {
-      return 0;
-    }
+    let idx = this.beatManager.binarySearchLE(beats, time);
+    idx = Math.max(0, Math.min(beats.length - 2, idx));
+    time = Math.max(0, Math.min(beats[beats.length - 1], time));
     const { t, p0, p1, p2, p3 } = this.getCatmullRomParams(idx, time);
     return this.sampleCatmullRomDerivative(t, p0, p1, p2, p3);
   }
@@ -82,10 +78,10 @@ class TempoEstimator {
     const p2 = [beats[idx + 1], this.beatManager.getAverageTempo(idx + 1)];
     const p0 = (idx - 1 >= 0)
       ? [beats[idx - 1], this.beatManager.getAverageTempo(idx - 1)]
-      : [p1[0] - 0.001, p1[1]];
+      : [-(p2[0] - p1[0]), p1[1] - (p2[1] - p1[1])];
     const p3 = (idx + 2 < beats.length)
       ? [beats[idx + 2], this.beatManager.getAverageTempo(idx + 2)]
-      : [p2[0] + 0.001, p2[1]];
+      : [p2[0] + (p2[0] - p1[0]), p2[1] + (p2[1] - p1[1])];
 
     return { t, p0, p1, p2, p3 };
   }

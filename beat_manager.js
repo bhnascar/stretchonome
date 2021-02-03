@@ -14,19 +14,17 @@ class BeatManager {
   }
 
   getTempo(idx) {
-    if (idx < 1 || idx >= this.beats.length) {
+    if (this.beats.length < 2) {
       return 0;
     }
+    idx = Math.max(1, Math.min(this.beats.length - 1, idx));
     return 60 / (this.beats[idx] - this.beats[idx - 1]);
   }
 
   getAverageTempo(idx) {
-    if (idx < 1 || idx >= this.beats.length) {
-      return 0;
-    }
     let avg = 0;
     for (let i = 0; i < this.weights.length; i++) {
-      avg += this.weights[i] * this.getTempo(Math.max(1, idx - i));
+      avg += this.weights[i] * this.getTempo(Math.max(0, idx - i));
       avg += this.weights[i] * this.getTempo(Math.min(this.beats.length - 1, idx + i));
     }
     return avg;
