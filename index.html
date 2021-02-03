@@ -16,6 +16,7 @@
   <script src="beat_visualizer.js"></script>
   <script src="tempo_estimator.js"></script>
   <script src="audio_track.js"></script>
+  <script src="heat_map.js"></script>
 </head>
 
 <body>
@@ -38,6 +39,7 @@
   <script type="text/javascript">
     const canvas = document.querySelector("canvas");
     const canvasOverlay = document.getElementById("canvas-overlay");
+    const canvasWrapper = document.getElementById("canvas-wrapper");
     const timeLabel = document.getElementById("time-label");
     const tempoLabel = document.getElementById("tempo-label");
     const timeline = new Timeline(canvas, {
@@ -50,10 +52,12 @@
     const audioTrack = new AudioTrack(beatManager);
     const beatVisualizer = new BeatVisualizer(canvasOverlay, beatManager);
     const tempoEstimator = new TempoEstimator(beatManager);
+    const heatMap = new HeatMap(canvasWrapper, tempoEstimator);
 
     timeline.addPlugin(audioTrack);
     timeline.addPlugin(beatVisualizer);
     timeline.addPlugin(tempoEstimator);
+    timeline.addPlugin(heatMap);
 
     const loop = (timeMS) => {
       timeLabel.innerText = timeline.currentTimeString();

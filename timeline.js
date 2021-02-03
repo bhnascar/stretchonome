@@ -35,7 +35,6 @@ class Timeline {
 
     this.ctx.scale(dpr, dpr);
     this.ctx.font = '12px sans-serif';
-    this.ctx.lineWidth = 2;
   }
 
   toDateString(time) {
@@ -50,7 +49,8 @@ class Timeline {
 
     // Draw tick shadow.
     this.ctx.beginPath();
-    this.ctx.strokeStyle = '#1C1C1C';
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
     let cur = Math.max(0, Math.floor(windowMin / majorInterval) * majorInterval);
     while (cur < windowMax) {
       const x = ((cur - windowMin) / windowSize) * windowWidth;
@@ -62,7 +62,7 @@ class Timeline {
 
     // Draw tick highlight.
     this.ctx.beginPath();
-    this.ctx.strokeStyle = '#2A2A2A';
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
     cur = Math.max(0, Math.floor(windowMin / majorInterval) * majorInterval);
     while (cur < windowMax) {
       const x = ((cur - windowMin) / windowSize) * windowWidth;
@@ -82,7 +82,7 @@ class Timeline {
     this.ctx.beginPath();
     this.ctx.moveTo(0, 31);
     this.ctx.lineTo(windowWidth, 31);
-    this.ctx.strokeStyle = '#1A1A1A';
+    this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)';
     this.ctx.stroke();
 
     // Draw labels (separate pass to avoid state changes).
