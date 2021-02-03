@@ -24,8 +24,8 @@ class BeatManager {
   getAverageTempo(idx) {
     let avg = 0;
     for (let i = 0; i < this.weights.length; i++) {
-      avg += this.weights[i] * this.getTempo(Math.max(0, idx - i));
-      avg += this.weights[i] * this.getTempo(Math.min(this.beats.length - 1, idx + i));
+      avg += this.weights[i] * this.getTempo(idx - i);
+      avg += this.weights[i] * this.getTempo(idx + i);
     }
     return avg;
   }
