@@ -9,10 +9,8 @@ class TempoEstimator {
       return 0;
     }
     let idx = this.beatManager.binarySearchLE(beats, time);
-    idx = Math.max(0, Math.min(beats.length - 2, idx));
-    time = Math.max(0, Math.min(beats[beats.length - 1], time));
-    const { t, p0, p1, p2, p3 } = this.getCatmullRomParams(idx, time);
-    return this.sampleCatmullRom(t, p0, p1, p2, p3);
+    const cmParams = this.getCatmullRomParams(idx);
+    return this.sampleCatmullRom(time, cmParams);
   }
 
   estimateAcceleration(time) {
@@ -21,14 +19,16 @@ class TempoEstimator {
       return 0;
     }
     let idx = this.beatManager.binarySearchLE(beats, time);
-    idx = Math.max(0, Math.min(beats.length - 2, idx));
-    time = Math.max(0, Math.min(beats[beats.length - 1], time));
-    const { t, p0, p1, p2, p3 } = this.getCatmullRomParams(idx, time);
-    return this.sampleCatmullRomDerivative(t, p0, p1, p2, p3);
+    const cmParams = this.getCatmullRomParams(idx);
+    return this.sampleCatmullRomDerivative(time, cmParams);
   }
 
   render(timelineState) {
     const { beats } = this.beatManager;
+    if (beats.length < 2) {
+      return;
+    }
+
     const { ctx, curTime, windowMin, windowMax, windowWidth, windowHeight } = timelineState;
 
     const height = windowHeight / 2;
@@ -41,12 +41,17 @@ class TempoEstimator {
     const start = Math.max(0, windowMin);
     const end = Math.min(windowMax, Math.max(beats[beats.length - 1], curTime));
 
+    let cmParams = {};
     let max_tempo = 0, min_tempo = 0;
-    for (let t = start; t <= end; t += sampleRate) {
-      const tempo = this.estimateTempo(t);
+    for (let time = start; time <= end; time += sampleRate) {
+      if (!cmParams.p2 || time > cmParams.p2[0]) {
+        const idx = this.beatManager.binarySearchLE(beats, time);
+        cmParams = this.getCatmullRomParams(idx, time);
+      }
+      const tempo = this.sampleCatmullRom(time, cmParams);
       min_tempo = Math.min(tempo, min_tempo);
       max_tempo = Math.max(tempo, max_tempo);
-      samples.push([t, tempo]);
+      samples.push([time, tempo]);
     }
 
     ctx.beginPath();
@@ -66,11 +71,11 @@ class TempoEstimator {
     ctx.stroke();
   }
 
-  getCatmullRomParams(idx, time) {
+  getCatmullRomParams(idx) {
     const { beats } = this.beatManager;
 
-    // Compute interpolation time.
-    const t = (time - beats[idx]) / (beats[idx + 1] - beats[idx]);
+    // Clamp to valid range.
+    idx = Math.max(0, Math.min(beats.length - 2, idx));
 
     // Compute reference points, with extrapolation if needed.
     const p1 = [beats[idx], this.beatManager.getAverageTempo(idx)];
@@ -82,12 +87,17 @@ class TempoEstimator {
       ? [beats[idx + 2], this.beatManager.getAverageTempo(idx + 2)]
       : [p2[0] + (p2[0] - p1[0]), p2[1] + (p2[1] - p1[1])];
 
-    return { t, p0, p1, p2, p3 };
+    return { p0, p1, p2, p3 };
   }
 
   // Samples must contain four values
   // https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline
-  sampleCatmullRom(time, p0, p1, p2, p3) {
+  sampleCatmullRom(time, params) {
+    const { p0, p1, p2, p3 } = params;
+
+    time = (time - p1[0]) / (p2[0] - p1[0]);
+    time = Math.max(0, Math.min(1, time));
+    
     const t0 = 0;
     const t1 = this.getT(t0, 0.5, p0, p1);
     const t2 = this.getT(t1, 0.5, p1, p2);
@@ -102,7 +112,12 @@ class TempoEstimator {
     return ((t2 - t) * b1 + (t - t1) * b2) / (t2 - t1);
   }
 
-  sampleCatmullRomDerivative(time, p0, p1, p2, p3) {
+  sampleCatmullRomDerivative(time, params) {
+    const { p0, p1, p2, p3 } = params;
+
+    time = (time - p1[0]) / (p2[0] - p1[0]);
+    time = Math.max(0, Math.min(1, time));
+
     const t0 = 0;
     const t1 = this.getT(t0, 0.5, p0, p1);
     const t2 = this.getT(t1, 0.5, p1, p2);

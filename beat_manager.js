@@ -43,7 +43,7 @@ class BeatManager {
 
   removeBeat(time) {
     const idx = this.binarySearchGE(this.beats, time);
-    if (idx > 0) {
+    if (idx >= 0) {
       this.beats.splice(idx, 1);
     }
   }
