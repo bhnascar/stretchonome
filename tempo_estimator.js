@@ -34,14 +34,14 @@ class TempoEstimator {
     const height = windowHeight / 2;
     const scale = Math.min(100, windowHeight / 2);
 
-    let max_tempo = 0, min_tempo = 0;
     const samples = [];
-    const segments = 400;
+    const segments = 300;
     const sampleRate = (windowMax - windowMin) / segments;
 
     const start = Math.max(0, windowMin);
     const end = Math.min(windowMax, Math.max(beats[beats.length - 1], curTime));
 
+    let max_tempo = 0, min_tempo = 0;
     for (let t = start; t <= end; t += sampleRate) {
       const tempo = this.estimateTempo(t);
       min_tempo = Math.min(tempo, min_tempo);
@@ -52,8 +52,7 @@ class TempoEstimator {
     ctx.beginPath();
     ctx.lineWidth = 2;
     for (let i = 0; i < samples.length; i++) {
-      let t, tempo;
-      [t, tempo] = samples[i];
+      let [t, tempo] = samples[i];
       const normalizedTempo = (tempo - min_tempo) / (max_tempo - min_tempo);
       const x = windowWidth * (t - windowMin) / (windowMax - windowMin);
       const y = height - scale * (normalizedTempo - 0.5);

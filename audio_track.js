@@ -44,7 +44,7 @@ class AudioTrack {
       return;
     }
     const idx = this.beatManager.binarySearchLE(this.beatManager.beats, curTime);
-    if ((idx >= 0 && idx < this.beatManager.beats.length) &&
+    if (idx >= 0 &&
         (this.beatManager.beats[idx] >= this.prevTime) || // If we crossed this frame.
         (this.beatManager.beats[idx] == 0 && curTime < this.prevTime)) { // Rewind case.
       this.playTick();
