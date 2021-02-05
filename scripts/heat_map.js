@@ -3,9 +3,11 @@ class HeatMap {
     this.background = background;
     this.tempoEstimator = tempoEstimator;
 
-    this.steadyColor = [34, 34, 34]; // #222.
-    this.acceleratingColor = [80, 20, 40];
-    this.slowingColor = [20, 20, 80];
+    // In HSL.
+    this.slowingSteadyColor = [215, 0, 14];
+    this.acceleratingSteadyColor = [355, 0, 14];
+    this.acceleratingColor = [355, 47, 14];
+    this.slowingColor = [215, 90, 14];
   }
 
   render(timelineState) {
@@ -14,9 +16,10 @@ class HeatMap {
     const normalized = Math.min(1, Math.max(-1, acceleration / 5));
     const t = this.easeInCubic(Math.abs(normalized));
 
+    const sourceColor = (normalized < 0) ? this.slowingSteadyColor : this.acceleratingSteadyColor;
     const targetColor = (normalized < 0) ? this.slowingColor : this.acceleratingColor;
-    const res = this.lerp(this.steadyColor, targetColor, t);
-    this.background.style.backgroundColor = `rgb(${res[0]},${res[1]},${res[2]})`;
+    const res = this.lerp(sourceColor, targetColor, t);
+    this.background.style.backgroundColor = `hsl(${res[0]},${res[1]}%,${res[2]}%)`;
   }
 
   lerp(fromColor, toColor, t) {
