@@ -24,6 +24,7 @@
     <canvas></canvas>
     <div id="canvas-overlay"></div>
     <div id="time-label"></div>
+    <div id="instructions">Enter or tap to insert beats</div>
   </div>
   <div id="ui-wrapper">
     <div id="controls">
@@ -42,6 +43,8 @@
     const canvasWrapper = document.getElementById("canvas-wrapper");
     const timeLabel = document.getElementById("time-label");
     const tempoLabel = document.getElementById("tempo-label");
+    let instructionLabel = document.getElementById("instructions");
+
     const timeline = new Timeline(canvas, {
       windowSize: 5,
       majorInterval: 1,
@@ -117,6 +120,10 @@
     });
 
     const addBeat = () => {
+      if (instructionLabel) {
+        instructionLabel.parentNode.removeChild(instructionLabel);
+        instructionLabel = null;
+      }
       beatManager.addBeat(timeline.currentTime());
       timeline.start();
       playButton.innerHTML = '<i class="fa fa-pause" aria-hidden="true"></i>';
