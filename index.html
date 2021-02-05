@@ -55,14 +55,14 @@
     const heatMap = new HeatMap(canvasWrapper, tempoEstimator);
 
     timeline.addPlugin(audioTrack);
-    timeline.addPlugin(beatVisualizer);
     timeline.addPlugin(tempoEstimator);
     timeline.addPlugin(heatMap);
+    timeline.addPlugin(beatVisualizer);
 
     const loop = (timeMS) => {
+      timeline.render(timeMS);
       timeLabel.innerText = timeline.currentTimeString();
       tempoLabel.innerText = `Current tempo: ${Math.floor(tempoEstimator.estimateTempo(timeline.currentTime()))}`;
-      timeline.render(timeMS);
       return window.requestAnimationFrame(loop);
     };
     window.requestAnimationFrame(loop);
