@@ -49,30 +49,24 @@ class BeatManager {
   }
 
   binarySearchGE(arr, target) {
-    let start = 0;
-    let end = arr.length - 1;
-
-    while (start <= end) {
-      const mid = Math.floor((start + end) / 2);
-      if (arr[mid] >= target && (mid == 0 || arr[mid - 1] < target)) {
-        return mid;
-      }
-      if (arr[mid] < target) {
-        start = mid + 1;
-      } else {
-        end = mid - 1;
-      }
-    }
-    return -1;
+    return this.binarySearch(arr, target, (arr, idx) => (
+      arr[idx] >= target && (idx == 0 || arr[idx - 1] < target)
+    ));
   }
 
   binarySearchLE(arr, target) {
+    return this.binarySearch(arr, target, (arr, idx) => (
+      arr[idx] <= target && (idx == arr.length - 1 || arr[idx + 1] > target)
+    ));
+  }
+
+  binarySearch(arr, target, condition) {
     let start = 0;
     let end = arr.length - 1;
 
     while (start <= end) {
       const mid = Math.floor((start + end) / 2);
-      if (arr[mid] <= target && (mid == arr.length - 1 || arr[mid + 1] > target)) {
+      if (condition(arr, mid)) {
         return mid;
       }
       if (arr[mid] < target) {
