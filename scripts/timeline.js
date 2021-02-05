@@ -24,8 +24,8 @@ class Timeline {
   }
 
   resize() {
-    var rect = canvas.getBoundingClientRect();
-    var dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
 
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;

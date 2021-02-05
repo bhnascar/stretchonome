@@ -22,7 +22,7 @@ class BeatVisualizer {
     const start = this.beatManager.binarySearchGE(beats, windowMin);
     if (start >= 0) {
       for (let i = start; i < beats.length && beats[i] <= windowMax; i++) {
-        var beat = beats[i];
+        const beat = beats[i];
 
         // Reuse or get a DOM node for this beat.
         let node = this.activeNodes[beat];

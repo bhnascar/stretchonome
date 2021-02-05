@@ -78,18 +78,18 @@
       timeline.setWindowSize(timeline.settings.windowSize + 0.5 * sign);
     }
 
-    var beginButton = document.getElementById("begin");
+    const beginButton = document.getElementById("begin");
     beginButton.addEventListener("click", () => {
       timeline.reset();
     });
 
-    var endButton = document.getElementById("end");
+    const endButton = document.getElementById("end");
     endButton.addEventListener("click", () => {
       const { beats } = beatManager;
       timeline.setTime(beats.length > 0 ? beats[beats.length - 1] : 0);
     });
 
-    var playButton = document.getElementById("play");
+    const playButton = document.getElementById("play");
     playButton.addEventListener("click", () => {
       if (timeline.active) {
         timeline.stop();
@@ -100,7 +100,7 @@
       }
     });
 
-    var clearButton = document.getElementById("clear");
+    const clearButton = document.getElementById("clear");
     clearButton.addEventListener("click", () => {
       beatManager.clear();
       timeline.stop();
@@ -108,7 +108,7 @@
       playButton.innerHTML = '<i class="fa fa-play" aria-hidden="true"></i>';
     });
 
-    var muteButton = document.getElementById("mute");
+    const muteButton = document.getElementById("mute");
     muteButton.addEventListener("click", () => {
       if (!audioTrack.muted) {
         audioTrack.mute();
