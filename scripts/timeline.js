@@ -135,7 +135,7 @@ class Timeline {
   }
 
   setTime(time) {
-    this.curTime = time;
+    this.curTime = Math.max(0, time);
   }
 
   render(timeMS) {

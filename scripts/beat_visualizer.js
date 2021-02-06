@@ -8,7 +8,7 @@ class BeatVisualizer {
   }
 
   render(timelineState) {
-    const { curTime, windowMin, windowMax, windowWidth, windowHeight } = timelineState;
+    const { active, curTime, windowMin, windowMax, windowWidth, windowHeight } = timelineState;
     const windowSize = windowMax - windowMin;
 
     const trackHeight = 30;
@@ -41,7 +41,7 @@ class BeatVisualizer {
 
         // Animate nodes that overlap with 'now'.
         const timeGap = (curTime - beat);
-        if (timeGap < 0.6 && timeGap > 0) {
+        if (timeGap < 0.6 && timeGap > 0 && active) {
           if (!node.classList.contains('beat-bounce')) {
             node.classList.add('beat-bounce');
           }
