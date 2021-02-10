@@ -91,17 +91,18 @@ canvas {
 }
 
 #instructions {
-  width: 300px;
-  max-width: 80%;
-  max-height: 60%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   font-size: 20px;
-  font-weight: bold;
   border-radius: 20px;
   color: #FFF;
   background-color: rgba(0,0,0,0.3);
-  margin: 50px auto;
   padding: 20px;
   text-align: center;
+  z-index: 5;
+  text-shadow: 0px 0px 4px #000;
 }
 
 .beat {
