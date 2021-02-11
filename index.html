@@ -19,6 +19,7 @@
   <script src="scripts/beat_visualizer.js"></script>
   <script src="scripts/tempo_estimator.js"></script>
   <script src="scripts/audio_track.js"></script>
+  <script src="scripts/gesture_recognizer.js"></script>
   <script src="scripts/heat_map.js"></script>
 </head>
 
@@ -128,12 +129,12 @@
       }
     });
 
-    const addBeat = () => {
+    const addBeat = (time) => {
       if (instructionLabel) {
         instructionLabel.parentNode.removeChild(instructionLabel);
         instructionLabel = null;
       }
-      beatManager.addBeat(timeline.currentTime());
+      beatManager.addBeat(time);
       timeline.start();
       playButton.innerHTML = '<i class="fa fa-pause" aria-hidden="true"></i>';
     }
@@ -141,14 +142,27 @@
     document.addEventListener("keydown", (event) => {
       if (event.code == 'Enter') {
         event.preventDefault();
-        addBeat();
+        addBeat(timeline.currentTime());
       }
     });
 
-    canvasOverlay.addEventListener("touchstart", (event) => {
-      event.preventDefault();
-      addBeat();
-    });
+    const gestureRecognizer = new GestureRecognizer(canvasOverlay);
+    gestureRecognizer.onTap = (time) => {
+      // Subtract elapsed time from touch down to touch up.
+      const deltaTime = (performance.now() - time) / 1000;
+      addBeat(Math.max(0, timeline.currentTime() - deltaTime));
+    };
+
+    let referenceTime;
+    gestureRecognizer.onDragStart = ([x, y]) => {
+      referenceTime = timeline.currentTime();
+    };
+    gestureRecognizer.onDrag = ([dx, dy]) => {
+      const timeScale = timeline.timeScale();
+      if (!timeline.active) {
+        timeline.setTime(referenceTime - timeScale * dx);
+      }
+    };
 
   </script>
 </body>

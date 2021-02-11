@@ -122,6 +122,12 @@ class Timeline {
     return `${minutes}:${seconds}:${millis}`;
   }
 
+  timeScale() {
+    const { active, windowWidth, settings } = timeline;
+    const { windowSize } = settings;
+    return windowSize / windowWidth;
+  }
+
   reset() {
     this.curTime = 0;
   }
