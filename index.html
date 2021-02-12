@@ -20,7 +20,6 @@
   <script src="scripts/tempo_estimator.js"></script>
   <script src="scripts/audio_track.js"></script>
   <script src="scripts/gesture_recognizer.js"></script>
-  <script src="scripts/heat_map.js"></script>
 </head>
 
 <body>
@@ -59,11 +58,9 @@
     const audioTrack = new AudioTrack(beatManager);
     const beatVisualizer = new BeatVisualizer(canvasOverlay, beatManager);
     const tempoEstimator = new TempoEstimator(beatManager);
-    const heatMap = new HeatMap(canvasWrapper, tempoEstimator);
 
     timeline.addPlugin(audioTrack);
     timeline.addPlugin(tempoEstimator);
-    timeline.addPlugin(heatMap);
     timeline.addPlugin(beatVisualizer);
 
     const loop = (timeMS) => {

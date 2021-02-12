@@ -1,6 +1,5 @@
 class HeatMap {
-  constructor(background, tempoEstimator) {
-    this.background = background;
+  constructor(tempoEstimator) {
     this.tempoEstimator = tempoEstimator;
 
     // In HSL.
@@ -10,7 +9,7 @@ class HeatMap {
     this.slowingColor = [215, 90, 14];
   }
 
-  render(timelineState) {
+  getBackgroundColor(timelineState) {
     const { curTime } = timelineState;
     const acceleration = this.tempoEstimator.estimateAcceleration(curTime);
     const normalized = Math.min(1, Math.max(-1, acceleration / 5));
@@ -18,8 +17,7 @@ class HeatMap {
 
     const sourceColor = (normalized < 0) ? this.slowingSteadyColor : this.acceleratingSteadyColor;
     const targetColor = (normalized < 0) ? this.slowingColor : this.acceleratingColor;
-    const res = this.lerp(sourceColor, targetColor, t);
-    this.background.style.backgroundColor = `hsl(${res[0]},${res[1]}%,${res[2]}%)`;
+    return this.lerp(sourceColor, targetColor, t);
   }
 
   lerp(fromColor, toColor, t) {

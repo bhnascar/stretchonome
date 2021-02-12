@@ -8,7 +8,7 @@ class Timeline {
   constructor(canvas, settings) {
     this.canvas = canvas;
 
-    this.ctx = canvas.getContext('2d');
+    this.ctx = canvas.getContext('2d', { alpha: false });
     this.resize();
 
     this.settings = {
@@ -47,10 +47,14 @@ class Timeline {
     const { windowSize, majorInterval } = this.settings;
     const { windowMin, windowMax, windowWidth, windowHeight } = timelineState;
 
+    // Draw background.
+    this.ctx.fillStyle = '#222';
+    this.ctx.fillRect(0, 0, windowWidth, windowHeight);
+
     // Draw tick shadow.
     this.ctx.beginPath();
     this.ctx.lineWidth = 1;
-    this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+    this.ctx.strokeStyle = '#111';
     let cur = Math.max(0, Math.floor(windowMin / majorInterval) * majorInterval);
     while (cur < windowMax) {
       const x = ((cur - windowMin) / windowSize) * windowWidth;
@@ -62,7 +66,7 @@ class Timeline {
 
     // Draw tick highlight.
     this.ctx.beginPath();
-    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    this.ctx.strokeStyle = '#333';
     cur = Math.max(0, Math.floor(windowMin / majorInterval) * majorInterval);
     while (cur < windowMax) {
       const x = ((cur - windowMin) / windowSize) * windowWidth;
@@ -74,7 +78,7 @@ class Timeline {
 
     // Draw track.
     this.ctx.beginPath();
-    this.ctx.fillStyle = 'rgba(50, 50, 50, 0.6)';
+    this.ctx.fillStyle = '#333';
     this.ctx.rect(0, 0, windowWidth, 30);
     this.ctx.fill();
 
@@ -82,7 +86,7 @@ class Timeline {
     this.ctx.beginPath();
     this.ctx.moveTo(0, 31);
     this.ctx.lineTo(windowWidth, 31);
-    this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)';
+    this.ctx.strokeStyle = '#1A1A1A';
     this.ctx.stroke();
 
     // Draw labels (separate pass to avoid state changes).
@@ -90,7 +94,7 @@ class Timeline {
     cur = Math.max(0, Math.floor(windowMin / majorInterval) * majorInterval);
     while (cur < windowMax) {
       const x = ((cur - windowMin) / windowSize) * windowWidth;
-      this.ctx.fillText(this.toDateString(cur), x + 5, 20);
+      this.ctx.fillText(this.toDateString(cur), x - 14, 20);
       cur += majorInterval;
     }
 
@@ -157,7 +161,6 @@ class Timeline {
       windowWidth: this.windowWidth,
       windowHeight: this.windowHeight,
     };
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.draw(timelineState);
     this.plugins.forEach((plugin) => {
       plugin.render(timelineState);
